@@ -29,7 +29,9 @@
 #import "FloatLabeledTextFieldCell.h"
 #import "XLFormCustomCell.h"
 #import "XLFormInlineSegmentedCell.h"
+#import "SpiderSwitchCellWithSubtitle.h"
 
+static NSString * const kCustomRowSpiderBooleanSwitchTag = @"CustomRowSpiderBooleanSwitchTag";
 static NSString * const kCustomRowFirstRatingTag = @"CustomRowFirstRatingTag";
 static NSString * const kCustomRowSecondRatingTag = @"CustomRowSecondRatingTag";
 static NSString * const kCustomRowFloatLabeledTextFieldTag = @"CustomRowFloatLabeledTextFieldTag";
@@ -53,6 +55,19 @@ static NSString * const kCustomRowText = @"kCustomText";
     XLFormDescriptor * form = [XLFormDescriptor formDescriptorWithTitle:@"Custom Rows"];
     XLFormSectionDescriptor * section;
     XLFormRowDescriptor * row;
+    
+    
+    section = [XLFormSectionDescriptor formSectionWithTitle:@"Spidertracks"];
+    
+    [form addFormSection:section];
+    
+    row = [XLFormRowDescriptor formRowDescriptorWithTag:kCustomRowSpiderBooleanSwitchTag
+                                                rowType:XLFormRowDescriptorTypeBooleanSwitchWithSubtitle
+                                                  title:@"Flight modified"
+                                               subtitle:@"Notify me if the flight was cancelled or modified."];
+    
+    [section addFormRow:row];
+    
     
     // Section Ratings
     section = [XLFormSectionDescriptor formSectionWithTitle:@"Ratings"];

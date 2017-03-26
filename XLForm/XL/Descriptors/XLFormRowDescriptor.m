@@ -79,6 +79,38 @@ CGFloat XLFormRowInitialHeight = -2;
     @throw [NSException exceptionWithName:NSGenericException reason:@"initWithTag:(NSString *)tag rowType:(NSString *)rowType title:(NSString *)title must be used" userInfo:nil];
 }
 
+/*
+ Custom instatnce construtor for cell that support subtitle only.
+ **/
+-(instancetype)initWithTag:(NSString *)tag rowType:(NSString *)rowType title:(NSString *)title subtitle:(NSString*)subtitle;
+{
+    self = [super init];
+    if (self){
+        NSAssert(((![rowType isEqualToString:XLFormRowDescriptorTypeSelectorPopover] && ![rowType isEqualToString:XLFormRowDescriptorTypeMultipleSelectorPopover]) || (([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPad) && ([rowType isEqualToString:XLFormRowDescriptorTypeSelectorPopover] || [rowType isEqualToString:XLFormRowDescriptorTypeMultipleSelectorPopover]))), @"You must be running under UIUserInterfaceIdiomPad to use either XLFormRowDescriptorTypeSelectorPopover or XLFormRowDescriptorTypeMultipleSelectorPopover rows.");
+        _tag = tag;
+        _disabled = @NO;
+        _hidden = @NO;
+        _rowType = rowType;
+        _title = title;
+        _subtitle = subtitle;
+        _cellStyle = UITableViewCellStyleSubtitle; // For Subtitle row only
+        _validators = [NSMutableArray new];
+        _cellConfig = [NSMutableDictionary dictionary];
+        _cellConfigIfDisabled = [NSMutableDictionary dictionary];
+        _cellConfigAtConfigure = [NSMutableDictionary dictionary];
+        _isDirtyDisablePredicateCache = YES;
+        _disablePredicateCache = nil;
+        _isDirtyHidePredicateCache = YES;
+        _hidePredicateCache = nil;
+        _height = XLFormRowInitialHeight;
+        [self addObserver:self forKeyPath:@"value" options:NSKeyValueObservingOptionOld | NSKeyValueObservingOptionNew context:0];
+        [self addObserver:self forKeyPath:@"disablePredicateCache" options:NSKeyValueObservingOptionOld | NSKeyValueObservingOptionNew context:0];
+        [self addObserver:self forKeyPath:@"hidePredicateCache" options:NSKeyValueObservingOptionOld | NSKeyValueObservingOptionNew context:0];
+        
+    }
+    return self;
+}
+
 -(instancetype)initWithTag:(NSString *)tag rowType:(NSString *)rowType title:(NSString *)title;
 {
     self = [super init];
@@ -117,6 +149,11 @@ CGFloat XLFormRowInitialHeight = -2;
     return [[[self class] alloc] initWithTag:tag rowType:rowType title:title];
 }
 
++(instancetype)formRowDescriptorWithTag:(NSString *)tag rowType:(NSString *)rowType title:(NSString *)title subtitle:(NSString*)subtitle
+{
+    return [[[self class] alloc] initWithTag:tag rowType:rowType title:title subtitle:subtitle];
+}
+
 -(XLFormBaseCell *)cellForFormController:(XLFormViewController * __unused)formController
 {
     if (!_cell){
@@ -146,6 +183,9 @@ CGFloat XLFormRowInitialHeight = -2;
             _cell = [[cellClass alloc] initWithStyle:self.cellStyle reuseIdentifier:nil];
         }
         _cell.rowDescriptor = self;
+        if (![_cell isKindOfClass:[XLFormBaseCell class]]) {
+            NSLog(@"Something wrong");
+        }
         NSAssert([_cell isKindOfClass:[XLFormBaseCell class]], @"UITableViewCell must extend from XLFormBaseCell");
         [self configureCellAtCreationTime];
     }
